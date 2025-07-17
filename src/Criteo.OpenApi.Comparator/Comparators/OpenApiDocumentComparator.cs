@@ -19,9 +19,9 @@ namespace Criteo.OpenApi.Comparator.Comparators
         private readonly ParameterComparator _parameterComparator;
         private readonly ResponseComparator _responseComparator;
 
-        private readonly IDictionary<OpenApiSchema, bool> _isSchemaReferenced = new Dictionary<OpenApiSchema, bool>();
+        private readonly IDictionary<OpenApiSchema, bool> _isSchemaReferenced;
 
-        internal OpenApiDocumentComparator()
+        internal OpenApiDocumentComparator(bool trackSchemasReference = true)
         {
             _schemaComparator = new SchemaComparator();
             var contentComparator = new ContentComparator(_schemaComparator);
@@ -29,6 +29,9 @@ namespace Criteo.OpenApi.Comparator.Comparators
             var requestBodyComparator = new RequestBodyComparator(contentComparator);
             _responseComparator = new ResponseComparator(contentComparator);
             _operationComparator = new OperationComparator(_parameterComparator, requestBodyComparator, _responseComparator);
+
+            if (trackSchemasReference)
+                _isSchemaReferenced = new Dictionary<OpenApiSchema, bool>();
         }
 
         /// <summary>
@@ -297,8 +300,11 @@ namespace Criteo.OpenApi.Comparator.Comparators
             oldDocument.Components = oldDocument.Components ?? new OpenApiComponents();
             newDocument.Components = newDocument.Components ?? new OpenApiComponents();
 
-            TrackSchemasReference(oldDocument);
-            TrackSchemasReference(newDocument);
+            if (_isSchemaReferenced != null) 
+            {
+                TrackSchemasReference(oldDocument);
+                TrackSchemasReference(newDocument);
+            }
 
             context.PushProperty("components");
 
@@ -481,7 +487,7 @@ namespace Criteo.OpenApi.Comparator.Comparators
                  context.PushProperty(oldSchema.Key);
                  if (!newSchemas.TryGetValue(oldSchema.Key, out var newSchema))
                  {
-                     if (!_isSchemaReferenced[oldSchema.Value])
+                     if (_isSchemaReferenced != null && !_isSchemaReferenced[oldSchema.Value])
                      {
                          // It's only an error if the schema is referenced in the old service.
                          context.LogBreakingChange(ComparisonRules.RemovedDefinition, oldSchema.Key);
@@ -489,7 +495,7 @@ namespace Criteo.OpenApi.Comparator.Comparators
                  }
                  else
                  {
-                     _schemaComparator.Compare(context, oldSchema.Value, newSchema, _isSchemaReferenced[oldSchema.Value]);
+                     _schemaComparator.Compare(context, oldSchema.Value, newSchema, _isSchemaReferenced != null ? _isSchemaReferenced[oldSchema.Value] : true);
                  }
                  context.Pop();
              }

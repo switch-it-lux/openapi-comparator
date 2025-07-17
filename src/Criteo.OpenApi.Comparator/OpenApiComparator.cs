@@ -21,11 +21,13 @@ namespace Criteo.OpenApi.Comparator
         /// <param name="newOpenApiSpec">The content of the new OpenAPI Specification</param>
         /// <param name="parsingErrors">Parsing errors</param>
         /// <param name="strict">If true, then breaking changes are errors instead of warnings.</param>
+        /// <param name="trackSchemasReference">If true, then schemas that are not used are not compared.</param>
         public static IEnumerable<ComparisonMessage> Compare(
             string oldOpenApiSpec,
             string newOpenApiSpec,
             out IEnumerable<ParsingError> parsingErrors,
-            bool strict = false)
+            bool strict = false,
+            bool trackSchemasReference = true)
         {
             var oldOpenApiDocument = OpenApiParser.Parse(oldOpenApiSpec, out var oldSpecDiagnostic);
             var newOpenApiDocument = OpenApiParser.Parse(newOpenApiSpec, out var newSpecDiagnostic);
@@ -36,7 +38,7 @@ namespace Criteo.OpenApi.Comparator
 
             var context = new ComparisonContext(oldOpenApiDocument, newOpenApiDocument) { Strict = strict };
 
-            var comparator = new OpenApiDocumentComparator();
+            var comparator = new OpenApiDocumentComparator(trackSchemasReference);
             var comparisonMessages = comparator.Compare(context, oldOpenApiDocument.Typed, newOpenApiDocument.Typed);
 
             return comparisonMessages;

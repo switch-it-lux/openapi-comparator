@@ -8,13 +8,13 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <RootNamespace>Criteo.OpenApi.Comparator</RootNamespace>
     <!-- Nuget Package definition -->
-    <PackageId>Criteo.OpenApi.Comparator</PackageId>
+    <PackageId>Criteo.OpenApi.Comparator.Sit</PackageId>
     <Title>Criteo.OpenApi.Comparator</Title>
     <Description>OpenApi Specification v3 comparator. The tool is able to detect API differences between 2 versions of a specification in version 3.</Description>
     <Authors>Criteo</Authors>
     <Company>Criteo</Company>
     <Copyright>Copyright (c) Criteo Technology. All rights reserved.</Copyright>
-    <Version>0.8.3</Version>
+    <Version>0.8.3-patch.0</Version>
     <PackageProjectUrl>https://github.com/criteo/openapi-comparator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/criteo/openapi-comparator</RepositoryUrl>
     <PackageTags>Criteo, OpenApi, OpenApi-Comparator, OpenApi-Diff, Swagger</PackageTags>
