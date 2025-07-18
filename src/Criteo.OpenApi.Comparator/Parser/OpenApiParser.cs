@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 using Microsoft.OpenApi.Writers;
 using System.IO;
+using System.Globalization;
 
 namespace Criteo.OpenApi.Comparator.Parser
 {
@@ -25,7 +26,7 @@ namespace Criteo.OpenApi.Comparator.Parser
             var openApiReader = new OpenApiStringReader(openApiReaderSettings);
             var openApiDocument = openApiReader.Read(openApiDocumentAsString, out diagnostic);
 
-            var textWriter = new StringWriter();
+            var textWriter = new StringWriter(CultureInfo.InvariantCulture);
             var openApiWriter = new OpenApiJsonWriter(textWriter);
             openApiDocument.SerializeAsV3(openApiWriter);
             var openApiDocumentAsJson = textWriter.ToString();
