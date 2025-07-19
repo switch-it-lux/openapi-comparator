@@ -11,12 +11,15 @@ namespace Criteo.OpenApi.Comparator.Comparators
 {
     internal class SchemaComparator
     {
+        private readonly IEnumerable<string> _ignoreSchemas;
+
         private readonly LinkedList<OpenApiSchema> _visitedSchemas;
 
         private readonly IDictionary<OpenApiSchema, DataDirection> _compareDirections;
 
-        internal SchemaComparator()
+        internal SchemaComparator(IEnumerable<string> ignoreSchemas = null)
         {
+            _ignoreSchemas = ignoreSchemas;
             _visitedSchemas = new LinkedList<OpenApiSchema>();
             _compareDirections = new Dictionary<OpenApiSchema, DataDirection>();
         }
@@ -28,6 +31,11 @@ namespace Criteo.OpenApi.Comparator.Comparators
         {
             if (oldSchema == null && newSchema == null)
                 return;
+
+            if (ShouldIgnoreSchema(oldSchema) || ShouldIgnoreSchema(newSchema)) 
+            {
+                return;
+            }
 
             if (oldSchema == null)
             {
@@ -598,6 +606,20 @@ namespace Criteo.OpenApi.Comparator.Comparators
                 context.LogBreakingChange(ComparisonRules.AddedRequiredProperty,
                     string.Join(", ", addedRequiredProperties));
             }
+        }
+
+        private bool ShouldIgnoreSchema(OpenApiSchema schema)
+        {
+            if (_ignoreSchemas == null)
+                return false;
+
+            if (_ignoreSchemas.Any(x => schema.Reference?.ReferenceV3 == $"#/components/schemas/{x}"))
+                return true;
+
+            if (_ignoreSchemas.Any(x => schema.AllOf.Any(a => a.Reference?.ReferenceV3 == $"#/components/schemas/{x}")))
+                return true;
+
+            return false;
         }
     }
 }

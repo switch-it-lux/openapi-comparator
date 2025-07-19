@@ -21,9 +21,9 @@ namespace Criteo.OpenApi.Comparator.Comparators
 
         private readonly IDictionary<OpenApiSchema, bool> _isSchemaReferenced;
 
-        internal OpenApiDocumentComparator(bool trackSchemasReference = true)
+        internal OpenApiDocumentComparator(bool trackSchemasReference = true, IEnumerable<string> ignoreSchemas = null)
         {
-            _schemaComparator = new SchemaComparator();
+            _schemaComparator = new SchemaComparator(ignoreSchemas);
             var contentComparator = new ContentComparator(_schemaComparator);
             _parameterComparator = new ParameterComparator(_schemaComparator, contentComparator);
             var requestBodyComparator = new RequestBodyComparator(contentComparator);
@@ -487,7 +487,7 @@ namespace Criteo.OpenApi.Comparator.Comparators
                  context.PushProperty(oldSchema.Key);
                  if (!newSchemas.TryGetValue(oldSchema.Key, out var newSchema))
                  {
-                     if (_isSchemaReferenced != null && !_isSchemaReferenced[oldSchema.Value])
+                     if (_isSchemaReferenced == null || !_isSchemaReferenced[oldSchema.Value])
                      {
                          // It's only an error if the schema is referenced in the old service.
                          context.LogBreakingChange(ComparisonRules.RemovedDefinition, oldSchema.Key);
