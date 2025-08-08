@@ -306,7 +306,7 @@ namespace Criteo.OpenApi.Comparator
         {
             Id = 1023,
             Code = nameof(TypeFormatChanged),
-            Message = "The new version has a different format than the previous one.",
+            Message = "The new version has a different format '{0}' than the previous one '{1}'.",
             Type = MessageType.Update
         };
 

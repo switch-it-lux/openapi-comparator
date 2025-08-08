@@ -11,17 +11,19 @@ namespace Criteo.OpenApi.Comparator.Comparators
 {
     internal class SchemaComparator
     {
-        private readonly IEnumerable<string> _ignoreSchemas;
-
+        private readonly bool _alwaysVisitSchemas;
         private readonly LinkedList<OpenApiSchema> _visitedSchemas;
 
         private readonly IDictionary<OpenApiSchema, DataDirection> _compareDirections;
 
-        internal SchemaComparator(IEnumerable<string> ignoreSchemas = null)
+        private readonly string _excludeExtensionKey;
+
+        internal SchemaComparator(bool alwaysCompareSchemas = false, string excludeExtensionKey = null)
         {
-            _ignoreSchemas = ignoreSchemas;
+            _alwaysVisitSchemas = alwaysCompareSchemas;
             _visitedSchemas = new LinkedList<OpenApiSchema>();
             _compareDirections = new Dictionary<OpenApiSchema, DataDirection>();
+            _excludeExtensionKey = excludeExtensionKey;
         }
 
         internal void Compare(ComparisonContext context,
@@ -32,10 +34,8 @@ namespace Criteo.OpenApi.Comparator.Comparators
             if (oldSchema == null && newSchema == null)
                 return;
 
-            if (ShouldIgnoreSchema(oldSchema) || ShouldIgnoreSchema(newSchema)) 
-            {
+            if (oldSchema.ShouldExcludeSchema(_excludeExtensionKey) || newSchema.ShouldExcludeSchema(_excludeExtensionKey))
                 return;
-            }
 
             if (oldSchema == null)
             {
@@ -89,7 +89,10 @@ namespace Criteo.OpenApi.Comparator.Comparators
                 if (_visitedSchemas.Contains(oldSchema) && context.Direction != DataDirection.Both)
                     return;
 
-                _visitedSchemas.AddFirst(oldSchema);
+                // If direction is response or request and _alwaysVisitSchemas is true, do not add schema as visitedma itself
+                //_visitedSchemas.AddFirst(oldSchema);
+                if (!_alwaysVisitSchemas || context.Direction == DataDirection.None)
+                    _visitedSchemas.AddFirst(oldSchema);
             }
 
             CompareReadOnly(context, oldSchema.ReadOnly, newSchema.ReadOnly);
@@ -386,7 +389,7 @@ namespace Criteo.OpenApi.Comparator.Comparators
                 return;
 
             context.PushProperty("format");
-            context.LogBreakingChange(ComparisonRules.TypeFormatChanged);
+            context.LogBreakingChange(ComparisonRules.TypeFormatChanged, newSchema.Format ?? "", oldSchema.Format ?? "");
             context.Pop();
         }
 
@@ -606,20 +609,6 @@ namespace Criteo.OpenApi.Comparator.Comparators
                 context.LogBreakingChange(ComparisonRules.AddedRequiredProperty,
                     string.Join(", ", addedRequiredProperties));
             }
-        }
-
-        private bool ShouldIgnoreSchema(OpenApiSchema schema)
-        {
-            if (_ignoreSchemas == null)
-                return false;
-
-            if (_ignoreSchemas.Any(x => schema.Reference?.ReferenceV3 == $"#/components/schemas/{x}"))
-                return true;
-
-            if (_ignoreSchemas.Any(x => schema.AllOf.Any(a => a.Reference?.ReferenceV3 == $"#/components/schemas/{x}")))
-                return true;
-
-            return false;
         }
     }
 }

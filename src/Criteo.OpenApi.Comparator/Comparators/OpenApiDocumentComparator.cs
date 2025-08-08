@@ -14,6 +14,7 @@ namespace Criteo.OpenApi.Comparator.Comparators
 {
     internal class OpenApiDocumentComparator
     {
+        private readonly string _excludeExtensionKey;
         private readonly OperationComparator _operationComparator;
         private readonly SchemaComparator _schemaComparator;
         private readonly ParameterComparator _parameterComparator;
@@ -21,9 +22,10 @@ namespace Criteo.OpenApi.Comparator.Comparators
 
         private readonly IDictionary<OpenApiSchema, bool> _isSchemaReferenced;
 
-        internal OpenApiDocumentComparator(bool trackSchemasReference = true, IEnumerable<string> ignoreSchemas = null)
+        internal OpenApiDocumentComparator(bool trackSchemasReference = true, bool alwaysCompareSchemas = false, string excludeExtensionKey = null)
         {
-            _schemaComparator = new SchemaComparator(ignoreSchemas);
+            _excludeExtensionKey = excludeExtensionKey;
+            _schemaComparator = new SchemaComparator(alwaysCompareSchemas, excludeExtensionKey);
             var contentComparator = new ContentComparator(_schemaComparator);
             _parameterComparator = new ParameterComparator(_schemaComparator, contentComparator);
             var requestBodyComparator = new RequestBodyComparator(contentComparator);
@@ -185,6 +187,8 @@ namespace Criteo.OpenApi.Comparator.Comparators
             OpenApiPaths oldPaths, OpenApiPaths newPaths,
             bool isFromExtension = false)
         {
+            OpenApiExcludeExtensions.RemoveExcludedPathsAndOperations(oldPaths, newPaths, _excludeExtensionKey);
+
             if (oldPaths == null && newPaths == null)
                 return;
 

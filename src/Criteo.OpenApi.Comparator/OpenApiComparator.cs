@@ -22,14 +22,16 @@ namespace Criteo.OpenApi.Comparator
         /// <param name="parsingErrors">Parsing errors</param>
         /// <param name="strict">If true, then breaking changes are errors instead of warnings.</param>
         /// <param name="trackSchemasReference">If true, then schemas that are not used are not compared.</param>
-        /// <param name="ignoreSchemas">Optional list of schema names to ignore.</param>
+        /// <param name="alwaysCompareSchemas">If true, schemas are always compared (even if it is compared in the context of a path response/request).</param>
+        /// <param name="excludeExtensionKey">The name of a custom OpenAPI extension (e.g., x-exclude-from-api-diff) used to mark elements that should be excluded from the API comparison.</param>
         public static IEnumerable<ComparisonMessage> Compare(
             string oldOpenApiSpec,
             string newOpenApiSpec,
             out IEnumerable<ParsingError> parsingErrors,
             bool strict = false,
-            bool trackSchemasReference = true,
-            IEnumerable<string> ignoreSchemas = null)
+            bool trackSchemasReference = true, 
+            bool alwaysCompareSchemas = false,
+            string excludeExtensionKey = null)
         {
             var oldOpenApiDocument = OpenApiParser.Parse(oldOpenApiSpec, out var oldSpecDiagnostic);
             var newOpenApiDocument = OpenApiParser.Parse(newOpenApiSpec, out var newSpecDiagnostic);
@@ -40,7 +42,7 @@ namespace Criteo.OpenApi.Comparator
 
             var context = new ComparisonContext(oldOpenApiDocument, newOpenApiDocument) { Strict = strict };
 
-            var comparator = new OpenApiDocumentComparator(trackSchemasReference, ignoreSchemas);
+            var comparator = new OpenApiDocumentComparator(trackSchemasReference, alwaysCompareSchemas, excludeExtensionKey);
             var comparisonMessages = comparator.Compare(context, oldOpenApiDocument.Typed, newOpenApiDocument.Typed);
 
             return comparisonMessages;
