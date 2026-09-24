@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      parameters:
+        - name: implied
+          in: header
+          schema:
+            type: string
+        - name: explicit
+          in: header
+          style: simple
+          schema:
+            type: array
+            items:
+              type: string
+        - name: sameLocation
+          in: query
+          style: pipeDelimited
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: ok

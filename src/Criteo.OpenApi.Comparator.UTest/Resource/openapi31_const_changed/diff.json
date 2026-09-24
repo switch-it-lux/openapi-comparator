@@ -1,0 +1,46 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Warning",
+    "Message": "The new version is removing enum value(s) 'dog' from the old version.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/items/properties/tag/const",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/items/properties/tag/const",
+    "OldJsonPath": "#/components/schemas/Pet/properties/tag/const",
+    "NewJsonPath": "#/components/schemas/Pet/properties/tag/const",
+    "Id": 1019,
+    "Code": "RemovedEnumValue",
+    "Mode": "Removal"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version is adding enum value(s) 'cat' from the old version.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/items/properties/tag/const",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/items/properties/tag/const",
+    "OldJsonPath": "#/components/schemas/Pet/properties/tag/const",
+    "NewJsonPath": "#/components/schemas/Pet/properties/tag/const",
+    "Id": 1020,
+    "Code": "AddedEnumValue",
+    "Mode": "Addition"
+  },
+  {
+    "Severity": "Info",
+    "Message": "The new version has a different 'enum' value than the previous one.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/items/properties/tag/const",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/items/properties/tag/const",
+    "OldJsonPath": "#/components/schemas/Pet/properties/tag/const",
+    "NewJsonPath": "#/components/schemas/Pet/properties/tag/const",
+    "Id": 1036,
+    "Code": "ConstraintChanged",
+    "Mode": "Update"
+  }
+]

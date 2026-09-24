@@ -1,0 +1,43 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            exclusiveMinimum: 0
+            exclusiveMaximum: 100
+      responses:
+        "200":
+          description: pet response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        tag:
+          type: [string, "null"]
+        kind:
+          type: string
+          const: dog
+        count:
+          type: integer
+          const: 1
+        status:
+          type: [string, 'null']
+          enum: [a, b, null]

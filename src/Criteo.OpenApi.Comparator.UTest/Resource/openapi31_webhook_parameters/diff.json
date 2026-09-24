@@ -1,0 +1,35 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The 'required' status changed from the old version('True') to the new version('False').",
+    "OldJsonRef": "#/webhooks/newPet/post/parameters/0/required",
+    "NewJsonRef": "#/webhooks/newPet/post/parameters/0/required",
+    "OldJsonPath": "#/webhooks/newPet/post/parameters/0/required",
+    "NewJsonPath": "#/webhooks/newPet/post/parameters/0/required",
+    "Id": 1025,
+    "Code": "RequiredStatusChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Info",
+    "Message": "The 'required' status changed from the old version('False') to the new version('True').",
+    "OldJsonRef": "#/webhooks/newPet/post/parameters/1/required",
+    "NewJsonRef": "#/webhooks/newPet/post/parameters/1/required",
+    "OldJsonPath": "#/webhooks/newPet/post/parameters/1/required",
+    "NewJsonPath": "#/webhooks/newPet/post/parameters/1/required",
+    "Id": 1025,
+    "Code": "RequiredStatusChange",
+    "Mode": "Update"
+  }
+]

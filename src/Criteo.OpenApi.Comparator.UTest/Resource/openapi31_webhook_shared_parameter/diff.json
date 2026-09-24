@@ -1,0 +1,35 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Info",
+    "Message": "The 'required' status changed from the old version('True') to the new version('False').",
+    "OldJsonRef": "#/paths/~1a/get/parameters/0/required",
+    "NewJsonRef": "#/paths/~1a/get/parameters/0/required",
+    "OldJsonPath": "#/components/parameters/P/required",
+    "NewJsonPath": "#/components/parameters/P/required",
+    "Id": 1025,
+    "Code": "RequiredStatusChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The 'required' status changed from the old version('True') to the new version('False').",
+    "OldJsonRef": "#/webhooks/hook/post/parameters/0/required",
+    "NewJsonRef": "#/webhooks/hook/post/parameters/0/required",
+    "OldJsonPath": "#/components/parameters/P/required",
+    "NewJsonPath": "#/components/parameters/P/required",
+    "Id": 1025,
+    "Code": "RequiredStatusChange",
+    "Mode": "Update"
+  }
+]

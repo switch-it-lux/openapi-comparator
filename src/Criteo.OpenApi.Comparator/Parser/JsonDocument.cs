@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Criteo Technology. All rights reserved.
 // Licensed under the Apache 2.0 License. See LICENSE in the project root for license information.
 
+using Microsoft.OpenApi;
 using Newtonsoft.Json.Linq;
 
 namespace Criteo.OpenApi.Comparator.Parser
@@ -24,10 +25,16 @@ namespace Criteo.OpenApi.Comparator.Parser
         /// </summary>
         public T Typed { get; }
 
-        public JsonDocument(JToken token, T typed)
+        /// <summary>
+        /// OpenAPI specification version of the source document
+        /// </summary>
+        public OpenApiSpecVersion SpecVersion { get; }
+
+        public JsonDocument(JToken token, T typed, OpenApiSpecVersion specVersion = OpenApiSpecVersion.OpenApi3_0)
         {
             Token = token;
             Typed = typed;
+            SpecVersion = specVersion;
         }
     }
 
@@ -36,7 +43,8 @@ namespace Criteo.OpenApi.Comparator.Parser
         /// <summary>
         /// Creates a `JsonDocument` object. It's a syntax sugar for `new JsonDocument`.
         /// </summary>
-        public static JsonDocument<T> ToJsonDocument<T>(this JToken token, T typed) =>
-            new JsonDocument<T>(token, typed);
+        public static JsonDocument<T> ToJsonDocument<T>(this JToken token, T typed,
+            OpenApiSpecVersion specVersion = OpenApiSpecVersion.OpenApi3_0) =>
+            new JsonDocument<T>(token, typed, specVersion);
     }
 }

@@ -1,0 +1,57 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version is missing a path that was found in the old version. Was path 'petDeleted' removed or restructured?",
+    "OldJsonRef": "#/webhooks/petDeleted",
+    "NewJsonRef": "#/webhooks/petDeleted",
+    "OldJsonPath": "#/webhooks/petDeleted",
+    "NewJsonPath": "#/webhooks/petDeleted",
+    "Id": 1005,
+    "Code": "RemovedPath",
+    "Mode": "Removal"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a less constraining 'maxLength' value than the previous one.",
+    "OldJsonRef": "#/webhooks/newPet/post/requestBody/content/application~1json/schema/properties/name/maxLength",
+    "NewJsonRef": "#/webhooks/newPet/post/requestBody/content/application~1json/schema/properties/name/maxLength",
+    "OldJsonPath": "#/components/schemas/Pet/properties/name/maxLength",
+    "NewJsonPath": "#/components/schemas/Pet/properties/name/maxLength",
+    "Id": 1037,
+    "Code": "ConstraintIsWeaker",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version is adding enum value(s) 'bird' from the old version.",
+    "OldJsonRef": "#/webhooks/newPet/post/requestBody/content/application~1json/schema/properties/kind/enum",
+    "NewJsonRef": "#/webhooks/newPet/post/requestBody/content/application~1json/schema/properties/kind/enum",
+    "OldJsonPath": "#/components/schemas/Pet/properties/kind/enum",
+    "NewJsonPath": "#/components/schemas/Pet/properties/kind/enum",
+    "Id": 1020,
+    "Code": "AddedEnumValue",
+    "Mode": "Addition"
+  },
+  {
+    "Severity": "Info",
+    "Message": "The new version has a less constraining 'enum' value than the previous one.",
+    "OldJsonRef": "#/webhooks/newPet/post/requestBody/content/application~1json/schema/properties/kind/enum",
+    "NewJsonRef": "#/webhooks/newPet/post/requestBody/content/application~1json/schema/properties/kind/enum",
+    "OldJsonPath": "#/components/schemas/Pet/properties/kind/enum",
+    "NewJsonPath": "#/components/schemas/Pet/properties/kind/enum",
+    "Id": 1037,
+    "Code": "ConstraintIsWeaker",
+    "Mode": "Update"
+  }
+]

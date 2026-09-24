@@ -1,0 +1,35 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a less constraining 'maximum' value than the previous one.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/weight/maximum",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/weight/maximum",
+    "OldJsonPath": "#/components/schemas/Pet/properties/weight/maximum",
+    "NewJsonPath": "#/components/schemas/Pet/properties/weight/maximum",
+    "Id": 1037,
+    "Code": "ConstraintIsWeaker",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Info",
+    "Message": "The new version has a more constraining 'minimum' value than the previous one.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/height/minimum",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/height/minimum",
+    "OldJsonPath": "#/components/schemas/Pet/properties/height/minimum",
+    "NewJsonPath": "#/components/schemas/Pet/properties/height/minimum",
+    "Id": 1024,
+    "Code": "ConstraintIsStronger",
+    "Mode": "Update"
+  }
+]

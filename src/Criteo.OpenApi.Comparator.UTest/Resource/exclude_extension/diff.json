@@ -1,0 +1,35 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a different type 'integer' than the previous one 'string'.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/visible/type",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/visible/type",
+    "OldJsonPath": "#/components/schemas/Pet/properties/visible/type",
+    "NewJsonPath": "#/components/schemas/Pet/properties/visible/type",
+    "Id": 1026,
+    "Code": "TypeChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version is adding a new schema that was not found in the old version.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1xml/schema",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1xml/schema",
+    "OldJsonPath": "#/paths/~1pets/get/responses/200/content/application~1xml/schema",
+    "NewJsonPath": "#/paths/~1pets/get/responses/200/content/application~1xml/schema",
+    "Id": 1048,
+    "Code": "AddedSchema",
+    "Mode": "Removal"
+  }
+]

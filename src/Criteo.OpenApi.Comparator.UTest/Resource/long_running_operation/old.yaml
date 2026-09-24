@@ -15,3 +15,7 @@ paths:
           required: true
       responses: {}
       x-ms-long-running-operation: false
+    post:
+      operationId: Parameters_Post
+      responses: {}
+      x-ms-long-running-operation: true

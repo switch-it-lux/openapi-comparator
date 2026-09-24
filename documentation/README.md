@@ -97,3 +97,5 @@
 [1048 - AddedSchema](rules/1048.md)
 
 [2000 - NullablePropertyChanged](rules/2000.md)
+
+[2001 - DifferentAnyOf](rules/2001.md)

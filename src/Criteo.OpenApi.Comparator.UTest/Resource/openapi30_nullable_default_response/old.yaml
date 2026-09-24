@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example'
+        default:
+          description: error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    nullable: true
+                    allOf:
+                      - $ref: '#/components/schemas/Problem'
+components:
+  schemas:
+    Problem:
+      type: object
+      properties:
+        title:
+          type: string
+    example:
+      type: object
+      properties:
+        problem:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Problem'

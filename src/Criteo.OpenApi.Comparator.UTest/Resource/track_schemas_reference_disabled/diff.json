@@ -1,0 +1,24 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a new optional property 'age' that was not found in the old version.",
+    "OldJsonRef": "#/components/schemas/Unused/properties/age",
+    "NewJsonRef": "#/components/schemas/Unused/properties/age",
+    "OldJsonPath": "#/components/schemas/Unused/properties/age",
+    "NewJsonPath": "#/components/schemas/Unused/properties/age",
+    "Id": 1045,
+    "Code": "AddedOptionalProperty",
+    "Mode": "Addition"
+  }
+]

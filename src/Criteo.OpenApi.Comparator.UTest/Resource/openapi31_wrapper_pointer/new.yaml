@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  owner:
+                    additionalProperties: false
+                    anyOf:
+                      - $ref: '#/components/schemas/User'
+                      - type: 'null'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: integer

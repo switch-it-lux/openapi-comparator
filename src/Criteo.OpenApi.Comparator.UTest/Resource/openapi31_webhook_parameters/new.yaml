@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Delta
+webhooks:
+  newPet:
+    post:
+      parameters:
+        - name: X-Signature
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-Trace
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok

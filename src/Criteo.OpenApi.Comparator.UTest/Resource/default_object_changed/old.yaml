@@ -1,0 +1,26 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    type: object
+                    default: {size: 1, tags: [a, b]}
+                  unchanged:
+                    type: object
+                    default: {size: 1, tags: [a, b]}
+                  list:
+                    type: array
+                    items: {type: string}
+                    default: [a, b]

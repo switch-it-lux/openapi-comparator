@@ -621,5 +621,16 @@ namespace Criteo.OpenApi.Comparator
             Message = "The nullable property has changed from '{0}' to '{1}'.",
             Type = MessageType.Update
         };
+
+        /// <summary>
+        /// OpenApi Specification version 3 specific
+        /// </summary>
+        public static ComparisonRule DifferentAnyOf = new ComparisonRule()
+        {
+            Id = 2001,
+            Code = nameof(DifferentAnyOf),
+            Message = "The new version has a different 'anyOf' property than the previous one.",
+            Type = MessageType.Update
+        };
     }
 }

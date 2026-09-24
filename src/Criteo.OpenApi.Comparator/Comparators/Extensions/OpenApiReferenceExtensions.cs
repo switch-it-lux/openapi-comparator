@@ -3,105 +3,90 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Criteo.OpenApi.Comparator.Comparators.Extensions
 {
     internal static class OpenApiReferenceExtensions
     {
         /// <summary>
+        /// Get the reference of an element if it is a reference ($ref) to another element, null otherwise.
+        /// </summary>
+        internal static BaseOpenApiReference GetReference(this IOpenApiReferenceable element) =>
+            element switch
+            {
+                OpenApiSchemaReference schemaReference => schemaReference.Reference,
+                OpenApiParameterReference parameterReference => parameterReference.Reference,
+                OpenApiResponseReference responseReference => responseReference.Reference,
+                OpenApiRequestBodyReference requestBodyReference => requestBodyReference.Reference,
+                OpenApiHeaderReference headerReference => headerReference.Reference,
+                _ => null,
+            };
+
+        /// <summary>
+        /// Get the reference path (e.g. #/components/schemas/XXX) of an element if it is a reference, null otherwise.
+        /// </summary>
+        internal static string GetReferenceV3(this IOpenApiReferenceable element) =>
+            element.GetReference()?.ReferenceV3;
+
+        /// <summary>
+        /// Indicate if the element is a reference ($ref) to another element.
+        /// </summary>
+        internal static bool IsReference(this IOpenApiReferenceable element) =>
+            !string.IsNullOrWhiteSpace(element.GetReferenceV3());
+
+        /// <summary>
         /// Retrieve a parameter from the components/parameters section.
         /// </summary>
         /// <param name="reference">A document-relative reference object -- #/components/parameters/XXX</param>
         /// <param name="parameters">The parameters dictionary to use</param>
-        internal static OpenApiParameter Resolve(this OpenApiReference reference,
-            IDictionary<string, OpenApiParameter> parameters)
-        {
-            if (reference == null || parameters == null || !reference.IsLocal)
-                return null;
-
-            if (!reference.IsPathToParameter())
-                return null;
-
-            if (parameters.TryGetValue(reference.GetLastPathElement(), out var parameter))
-                return parameter;
-
-            return null;
-        }
+        internal static IOpenApiParameter Resolve(this BaseOpenApiReference reference,
+            IDictionary<string, IOpenApiParameter> parameters) =>
+            reference.Resolve(parameters, "parameters");
 
         /// <summary>
         /// Retrieve a schema from the components/schemas section.
         /// </summary>
         /// <param name="reference">A document-relative reference object -- #/components/schemas/XXX</param>
         /// <param name="schemas">The schemas dictionary to use</param>
-        internal static OpenApiSchema Resolve(this OpenApiReference reference, IDictionary<string, OpenApiSchema> schemas)
-        {
-            if (reference == null || schemas == null || !reference.IsLocal)
-                return null;
-
-            if (!reference.IsPathToSchema())
-                return null;
-
-            return schemas.TryGetValue(reference.GetLastPathElement(), out var schema) ? schema : null;
-        }
+        internal static IOpenApiSchema Resolve(this BaseOpenApiReference reference, IDictionary<string, IOpenApiSchema> schemas) =>
+            reference.Resolve(schemas, "schemas");
 
         /// <summary>
         /// Retrieve a response from the components/responses section.
         /// </summary>
         /// <param name="reference">A document-relative reference object -- #/components/responses/XXX</param>
         /// <param name="responses">The responses dictionary to use</param>
-        internal static OpenApiResponse Resolve(this OpenApiReference reference, IDictionary<string, OpenApiResponse> responses)
-        {
-            if (reference == null || responses == null || !reference.IsLocal)
-                return null;
-
-            if (!reference.IsPathToResponse())
-                return null;
-
-            return responses.TryGetValue(reference.GetLastPathElement(), out var response) ? response : null;
-        }
+        internal static IOpenApiResponse Resolve(this BaseOpenApiReference reference, IDictionary<string, IOpenApiResponse> responses) =>
+            reference.Resolve(responses, "responses");
 
         /// <summary>
         /// Retrieve a requestBody from the components/requestBodies section.
         /// </summary>
         /// <param name="reference">A document-relative reference object -- #/components/requestBodies/XXX</param>
         /// <param name="requestBodies">The requestBodies dictionary to use</param>
-        internal static OpenApiRequestBody Resolve(this OpenApiReference reference, IDictionary<string, OpenApiRequestBody> requestBodies)
+        internal static IOpenApiRequestBody Resolve(this BaseOpenApiReference reference, IDictionary<string, IOpenApiRequestBody> requestBodies) =>
+            reference.Resolve(requestBodies, "requestBodies");
+
+        private static T Resolve<T>(this BaseOpenApiReference reference, IDictionary<string, T> components, string componentType)
+            where T : class
         {
-            if (reference == null || requestBodies == null || !reference.IsLocal)
+            if (reference == null || components == null || !reference.IsLocal || reference.ReferenceV3 == null)
                 return null;
 
-            if (!reference.IsPathToRequestBody())
+            if (!reference.IsPathTo(componentType))
                 return null;
 
-            return requestBodies.TryGetValue(reference.GetLastPathElement(), out var requestBody) ? requestBody : null;
+            return components.TryGetValue(reference.GetLastPathElement(), out var component) ? component : null;
         }
 
-        private static bool IsPathToParameter(this OpenApiReference reference)
+        private static bool IsPathTo(this BaseOpenApiReference reference, string componentType)
         {
             var parts = reference.ReferenceV3.Split('/');
-            return parts.Length == 4 && parts[1].Equals("components") && parts[2].Equals("parameters");
+            return parts.Length == 4 && parts[1].Equals("components") && parts[2].Equals(componentType);
         }
 
-        private static bool IsPathToSchema(this OpenApiReference reference)
-        {
-            var parts = reference.ReferenceV3.Split('/');
-            return parts.Length == 4 && parts[1].Equals("components") && parts[2].Equals("schemas");
-        }
-
-        private static bool IsPathToResponse(this OpenApiReference reference)
-        {
-            var parts = reference.ReferenceV3.Split('/');
-            return parts.Length == 4 && parts[1].Equals("components") && parts[2].Equals("responses");
-        }
-
-        private static bool IsPathToRequestBody(this OpenApiReference reference)
-        {
-            var parts = reference.ReferenceV3.Split('/');
-            return parts.Length == 4 && parts[1].Equals("components") && parts[2].Equals("requestBodies");
-        }
-
-        private static string GetLastPathElement(this OpenApiReference reference) =>
+        private static string GetLastPathElement(this BaseOpenApiReference reference) =>
             reference.ReferenceV3.Split('/').Last();
     }
 }

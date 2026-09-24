@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        weight:
+          type: number
+        height:
+          type: number
+          minimum: 0
+        size:
+          type: number
+          maximum: 1.7976931348623157E+308

@@ -1,7 +1,7 @@
 [
   {
     "Severity": "Warning",
-    "Message": "The new version has a different format than the previous one.",
+    "Message": "The new version has a different format 'int64' than the previous one 'int32'.",
     "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/sleepTime/format",
     "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/sleepTime/format",
     "OldJsonPath": "#/components/schemas/Pet/properties/sleepTime/format",
@@ -12,7 +12,7 @@
   },
   {
     "Severity": "Warning",
-    "Message": "The new version has a different format than the previous one.",
+    "Message": "The new version has a different format 'url' than the previous one 'email'.",
     "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/numberOfEyes/format",
     "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/numberOfEyes/format",
     "OldJsonPath": "#/components/schemas/Pet/properties/numberOfEyes/format",

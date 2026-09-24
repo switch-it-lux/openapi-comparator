@@ -1,0 +1,57 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "How the parameter is passed has changed -- it used to be 'query', now it is 'header'.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/0/in",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/0/in",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/0/in",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/0/in",
+    "Id": 1015,
+    "Code": "ParameterInHasChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "How the parameter is passed has changed -- it used to be 'query', now it is 'header'.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/1/in",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/1/in",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/1/in",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/1/in",
+    "Id": 1015,
+    "Code": "ParameterInHasChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "Parameter 'explicit' has a different style value in the new version.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/1/style",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/1/style",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/1/style",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/1/style",
+    "Id": 10281,
+    "Code": "ParameterStyleChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "Parameter 'sameLocation' has a different style value in the new version.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/2/style",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/2/style",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/2/style",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/2/style",
+    "Id": 10281,
+    "Code": "ParameterStyleChanged",
+    "Mode": "Update"
+  }
+]

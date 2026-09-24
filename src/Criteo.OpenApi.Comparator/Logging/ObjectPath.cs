@@ -12,14 +12,18 @@ namespace Criteo.OpenApi.Comparator.Logging
 {
     internal class ObjectPath
     {
-        internal static ObjectPath Empty => new ObjectPath(Enumerable.Empty<Func<JToken, string>>());
+        internal static ObjectPath Empty => new ObjectPath(Enumerable.Empty<Func<JToken, JToken, string>>());
 
-        private ObjectPath(IEnumerable<Func<JToken, string>> path)
+        /// <param name="path">The path elements: functions returning the name of the element from the current token
+        /// and the root token of the document</param>
+        private ObjectPath(IEnumerable<Func<JToken, JToken, string>> path)
         {
             Path = path;
         }
 
-        private ObjectPath Append(Func<JToken, string> function) => new ObjectPath(Path.Concat(new[] { function }));
+        private ObjectPath Append(Func<JToken, string> function) => Append((token, _) => function(token));
+
+        private ObjectPath Append(Func<JToken, JToken, string> function) => new ObjectPath(Path.Concat(new[] { function }));
 
         internal ObjectPath AppendProperty(string property) => Append(_ => property);
 
@@ -83,13 +87,38 @@ namespace Criteo.OpenApi.Comparator.Logging
         /// </summary>
         internal ObjectPath AppendPathProperty(string openApiPath) => Append(FindPathValue(openApiPath));
 
-        private IEnumerable<Func<JToken, string>> Path { get; }
+        /// <summary>
+        /// Path element that is ignored, e.g. when a wrapped schema is not wrapped in one of the documents.
+        /// </summary>
+        private const string SkippedElement = "\0";
+
+        /// <summary>
+        /// Appends a path element that depends on the document: <paramref name="oldName"/> in the old document
+        /// (identified by its root), <paramref name="newName"/> in the new one. A null name is ignored.
+        /// </summary>
+        internal ObjectPath AppendPerDocument(JToken oldDocumentRoot, string oldName, string newName) =>
+            Append((_, root) => (ReferenceEquals(root, oldDocumentRoot) ? oldName : newName) ?? SkippedElement);
+
+        /// <summary>
+        /// Appends the index of the array item that is a reference ($ref) to <paramref name="reference"/>.
+        /// </summary>
+        internal ObjectPath AppendItemByReference(string reference) => Append(token =>
+        {
+            for (var index = 0; index < (token as JArray)?.Count; index++)
+            {
+                if ((token[index] as JObject)?["$ref"]?.Value<string>() == reference)
+                    return index.ToString();
+            }
+            return null;
+        });
+
+        private IEnumerable<Func<JToken, JToken, string>> Path { get; }
 
         private static ObjectPath ParseRef(string s) =>
             new ObjectPath(s.Split('/')
                 .Where(v => v != "#")
-                .Select<string, Func<JToken, string>>(pathElement =>
-                    _ => pathElement.Replace("~1", "/")
+                .Select<string, Func<JToken, JToken, string>>(pathElement =>
+                    (_, _) => pathElement.Replace("~1", "/")
                         .Replace("~0", "~")
                     )
             );
@@ -112,17 +141,20 @@ namespace Criteo.OpenApi.Comparator.Logging
         }
 
         private static IEnumerable<(JToken token, string reference, string name)> CompletePath(
-            IEnumerable<Func<JToken, string>> path, JToken token)
+            IEnumerable<Func<JToken, JToken, string>> path, JToken token)
         {
+            var root = token;
             yield return (token, null, "#");
             foreach (var toJsonRefElement in path)
             {
                 string reference = null;
-                var name = toJsonRefElement(token);
+                var name = toJsonRefElement(token, root);
+                if (name == SkippedElement)
+                    continue;
                 switch (token)
                 {
                     case JArray jsonArray:
-                        token = int.TryParse(name, out var i) ? jsonArray[i] : null;
+                        token = int.TryParse(name, out var i) && i >= 0 && i < jsonArray.Count ? jsonArray[i] : null;
                         break;
                     case JObject o:
                         (token, reference) = FromObject(o, name);

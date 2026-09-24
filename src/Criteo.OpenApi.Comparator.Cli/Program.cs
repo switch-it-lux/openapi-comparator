@@ -55,7 +55,8 @@ namespace Criteo.OpenApi.Comparator.Cli
             }
             finally
             {
-                if (parsingErrors.Any())
+                // Null when the comparison failed before the parsing errors were known
+                if (parsingErrors != null && parsingErrors.Any())
                 {
                     Console.Error.WriteLine("Errors occurred while parsing the OpenAPI specifications:");
                     foreach (var error in parsingErrors)

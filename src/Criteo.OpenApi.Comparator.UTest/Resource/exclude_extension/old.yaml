@@ -1,0 +1,46 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /excluded:
+    x-exclude: true
+    get:
+      operationId: getExcluded
+      responses:
+        "200":
+          description: ok
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+            application/xml: {}
+    post:
+      operationId: createPet
+      x-exclude: true
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        internal:
+          type: string
+          x-exclude: true
+        visible:
+          type: string
+          x-exclude: false
+    Hidden:
+      type: object
+      x-exclude: true
+      properties:
+        secret:
+          type: string

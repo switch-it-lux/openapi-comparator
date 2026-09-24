@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
+using System.Net.Http;
+using System.Text.Json;
+using Microsoft.OpenApi;
 
 namespace Criteo.OpenApi.Comparator.Comparators.Extensions
 {
@@ -17,15 +17,15 @@ namespace Criteo.OpenApi.Comparator.Comparators.Extensions
         /// <summary>
         /// Indicate if the schema is marked with the exclude extension property.
         /// </summary>
-        public static bool ShouldExcludeSchema(this OpenApiSchema schema, string excludeExtensionKey)
+        public static bool ShouldExcludeSchema(this IOpenApiSchema schema, string excludeExtensionKey)
         {
-            if (string.IsNullOrEmpty(excludeExtensionKey))
+            if (string.IsNullOrEmpty(excludeExtensionKey) || schema == null)
                 return false;
 
             if (schema.Extensions.ShouldExclude(excludeExtensionKey))
                 return true;
 
-            if (schema.AllOf.Any(s => s.Extensions.ShouldExclude(excludeExtensionKey)))
+            if (schema.AllOf != null && schema.AllOf.Any(s => s.Extensions.ShouldExclude(excludeExtensionKey)))
                 return true;
 
             return false;
@@ -34,14 +34,14 @@ namespace Criteo.OpenApi.Comparator.Comparators.Extensions
         /// <summary>
         /// Indicate if the path is marked with the exclude extension property.
         /// </summary>
-        public static bool ShouldExcludePath(this OpenApiPathItem path, string excludeExtensionKey)
+        public static bool ShouldExcludePath(this IOpenApiPathItem path, string excludeExtensionKey)
         {
-            if (string.IsNullOrEmpty(excludeExtensionKey)) return false;
+            if (string.IsNullOrEmpty(excludeExtensionKey) || path == null) return false;
 
             if (path.Extensions.ShouldExclude(excludeExtensionKey))
                 return true;
 
-            if (path.Operations.All(x => x.Value.ShouldExcludeOperation(excludeExtensionKey)))
+            if (path.Operations != null && path.Operations.All(x => x.Value.ShouldExcludeOperation(excludeExtensionKey)))
                 return true;
 
             return false;
@@ -52,13 +52,13 @@ namespace Criteo.OpenApi.Comparator.Comparators.Extensions
         /// </summary>
         public static bool ShouldExcludeOperation(this OpenApiOperation operation, string excludeExtensionKey)
         {
-            if (string.IsNullOrEmpty(excludeExtensionKey)) return false;
+            if (string.IsNullOrEmpty(excludeExtensionKey) || operation == null) return false;
             return operation.Extensions.ShouldExclude(excludeExtensionKey);
         }
 
         internal static void RemoveExcludedPathsAndOperations(OpenApiPaths oldPaths, OpenApiPaths newPaths, string excludeExtensionKey)
         {
-            if (string.IsNullOrEmpty(excludeExtensionKey)) return;
+            if (string.IsNullOrEmpty(excludeExtensionKey) || oldPaths == null || newPaths == null) return;
 
             foreach (var path in newPaths.Union(oldPaths).ToArray())
             {
@@ -69,29 +69,29 @@ namespace Criteo.OpenApi.Comparator.Comparators.Extensions
                 }
                 else
                 {
-                    foreach (var operation in path.Value.Operations.ToArray())
+                    foreach (var operation in path.Value.Operations?.ToArray() ?? new KeyValuePair<HttpMethod, OpenApiOperation>[0])
                         if (operation.Value.ShouldExcludeOperation(excludeExtensionKey))
                         {
                             if (newPaths.ContainsKey(path.Key))
-                                newPaths[path.Key].Operations.Remove(operation.Key);
+                                newPaths[path.Key].Operations?.Remove(operation.Key);
                             if (oldPaths.ContainsKey(path.Key))
-                                oldPaths[path.Key].Operations.Remove(operation.Key);
+                                oldPaths[path.Key].Operations?.Remove(operation.Key);
                         }
 
-                    if (newPaths.ContainsKey(path.Key) && newPaths[path.Key].Operations.Count == 0)
+                    if (newPaths.ContainsKey(path.Key) && newPaths[path.Key].Operations?.Count is null or 0)
                         newPaths.Remove(path.Key);
-                    if (oldPaths.ContainsKey(path.Key) && oldPaths[path.Key].Operations.Count == 0)
+                    if (oldPaths.ContainsKey(path.Key) && oldPaths[path.Key].Operations?.Count is null or 0)
                         oldPaths.Remove(path.Key);
                 }
             }
         }
 
-        private static bool ShouldExclude(this IDictionary<string, IOpenApiExtension> extensions, string excludeExtensionKey)
+        private static bool ShouldExclude(this IEnumerable<KeyValuePair<string, IOpenApiExtension>> extensions, string excludeExtensionKey)
         {
             if (string.IsNullOrEmpty(excludeExtensionKey))
                 return false;
 
-            if (extensions.Any(x => x.Key == excludeExtensionKey && !(x.Value is OpenApiBoolean b && !b.Value)))
+            if (extensions != null && extensions.Any(x => x.Key == excludeExtensionKey && !(x.Value is JsonNodeExtension { Node: { } node } && node.GetValueKind() == JsonValueKind.False)))
                 return true;
 
             return false;

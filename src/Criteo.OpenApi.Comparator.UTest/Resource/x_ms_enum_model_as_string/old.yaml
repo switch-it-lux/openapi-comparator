@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  extensible:
+                    type: string
+                    enum: [dog, cat]
+                    x-ms-enum:
+                      name: Kind
+                      modelAsString: true
+                  closed:
+                    type: string
+                    enum: [dog, cat]
+                    x-ms-enum:
+                      name: Kind
+                      modelAsString: false

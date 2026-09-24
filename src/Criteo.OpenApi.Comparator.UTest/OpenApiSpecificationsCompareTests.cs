@@ -43,8 +43,16 @@ public class OpenApiSpecificationsCompareTests
         var newFileName = Path.Combine(resourceDirectory, testcase, "new.yaml");
         var diffFileName = Path.Combine(resourceDirectory, testcase, "diff.json");
 
+        var optionsFileName = Path.Combine(resourceDirectory, testcase, "options.json");
+
+        // Optional comparison options of the test case
+        var options = File.Exists(optionsFileName)
+            ? JsonSerializer.Deserialize<ComparisonOptionsModel>(File.ReadAllText(optionsFileName), serializerOptions)
+            : new ComparisonOptionsModel();
+
         var differences = OpenApiComparator
-            .Compare(File.ReadAllText(oldFileName), File.ReadAllText(newFileName), out _);
+            .Compare(File.ReadAllText(oldFileName), File.ReadAllText(newFileName), out _,
+                options.Strict, options.TrackSchemasReference, options.AlwaysCompareSchemas, options.ExcludeExtensionKey);
 
         var expectedDifferencesText = File.ReadAllText(diffFileName);
         var expectedDifferences = JsonSerializer
@@ -96,4 +104,12 @@ internal class ComparisonMessageModel
     public int Id { get; set; }
     public string Code { get; set; }
     public MessageType Mode { get; set; }
+}
+
+internal class ComparisonOptionsModel
+{
+    public bool Strict { get; set; }
+    public bool TrackSchemasReference { get; set; } = true;
+    public bool AlwaysCompareSchemas { get; set; }
+    public string ExcludeExtensionKey { get; set; }
 }

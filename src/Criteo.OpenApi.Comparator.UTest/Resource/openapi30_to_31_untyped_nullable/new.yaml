@@ -1,0 +1,24 @@
+openapi: 3.1.1
+info:
+  version: 1.0.0
+  title: Delta
+paths:
+  /messages:
+    get:
+      operationId: listMessages
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        handlingResult:
+          type: 'null'
+        payload:
+          type: string

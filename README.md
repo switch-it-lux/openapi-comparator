@@ -48,7 +48,7 @@ Each comparison rule is documented in the [documentation section](https://github
 
 ## OpenAPI version support
 
-Internally, the comparator uses [microsoft/OpenAPI.NET](https://github.com/microsoft/OpenAPI.NET/) which currently supports OpenAPI 2.0 to 3.0.0.
+Internally, the comparator uses [microsoft/OpenAPI.NET](https://github.com/microsoft/OpenAPI.NET/) which currently supports OpenAPI 2.0 to 3.1. Documents in version 3.0 and 3.1 can be compared with each other (e.g. `nullable: true` is equivalent to a `null` type).
 
 ## Contributing
 

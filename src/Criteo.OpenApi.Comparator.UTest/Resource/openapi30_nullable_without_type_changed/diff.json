@@ -1,0 +1,35 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The nullable property has changed from 'true' to 'false'.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/owner/nullable",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/owner/nullable",
+    "OldJsonPath": "#/components/schemas/Pet/properties/owner/nullable",
+    "NewJsonPath": "#/components/schemas/Pet/properties/owner/nullable",
+    "Id": 2000,
+    "Code": "NullablePropertyChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The nullable property has changed from 'false' to 'true'.",
+    "OldJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/vet/nullable",
+    "NewJsonRef": "#/paths/~1pets/get/responses/200/content/application~1json/schema/properties/vet/nullable",
+    "OldJsonPath": "#/components/schemas/Pet/properties/vet/nullable",
+    "NewJsonPath": "#/components/schemas/Pet/properties/vet/nullable",
+    "Id": 2000,
+    "Code": "NullablePropertyChanged",
+    "Mode": "Update"
+  }
+]

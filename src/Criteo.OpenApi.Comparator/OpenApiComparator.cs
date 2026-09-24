@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Criteo.OpenApi.Comparator.Comparators;
 using Criteo.OpenApi.Comparator.Parser;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Criteo.OpenApi.Comparator
 {
@@ -33,17 +33,27 @@ namespace Criteo.OpenApi.Comparator
             bool alwaysCompareSchemas = false,
             string excludeExtensionKey = null)
         {
+            // The out parameter is set before anything can throw, so that callers reading it in a finally block
+            // (like the CLI) never get null. The parser throws when a document cannot be read at all.
+            parsingErrors = new List<ParsingError>();
+
             var oldOpenApiDocument = OpenApiParser.Parse(oldOpenApiSpec, out var oldSpecDiagnostic);
             var newOpenApiDocument = OpenApiParser.Parse(newOpenApiSpec, out var newSpecDiagnostic);
 
-            parsingErrors = oldSpecDiagnostic.Errors
-                .Select(e => new ParsingError("old", e))
-                .Concat(newSpecDiagnostic.Errors.Select(e => new ParsingError("new", e)));
+            // Parsing errors are available even if the comparison fails
+            var errors = oldSpecDiagnostic.Errors.Select(e => new ParsingError("old", e))
+                .Concat(newSpecDiagnostic.Errors.Select(e => new ParsingError("new", e)))
+                .ToList();
+            parsingErrors = errors;
 
             var context = new ComparisonContext(oldOpenApiDocument, newOpenApiDocument) { Strict = strict };
 
             var comparator = new OpenApiDocumentComparator(trackSchemasReference, alwaysCompareSchemas, excludeExtensionKey);
             var comparisonMessages = comparator.Compare(context, oldOpenApiDocument.Typed, newOpenApiDocument.Typed);
+
+            // Errors found during the comparison (e.g. invalid x-ms-paths)
+            errors.AddRange(context.OldDocumentErrors.Select(e => new ParsingError("old", e)));
+            errors.AddRange(context.NewDocumentErrors.Select(e => new ParsingError("new", e)));
 
             return comparisonMessages;
         }

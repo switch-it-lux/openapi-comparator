@@ -1,0 +1,24 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The nullable property has changed from 'true' to 'false'.",
+    "OldJsonRef": "#/x-ms-paths/~1a?x=1/get/responses/200/content/application~1json/schema/nullable",
+    "NewJsonRef": "#/x-ms-paths/~1a?x=1/get/responses/200/content/application~1json/schema/nullable",
+    "OldJsonPath": "#/x-ms-paths/~1a?x=1/get/responses/200/content/application~1json/schema/nullable",
+    "NewJsonPath": "#/x-ms-paths/~1a?x=1/get/responses/200/content/application~1json/schema/nullable",
+    "Id": 2000,
+    "Code": "NullablePropertyChanged",
+    "Mode": "Update"
+  }
+]

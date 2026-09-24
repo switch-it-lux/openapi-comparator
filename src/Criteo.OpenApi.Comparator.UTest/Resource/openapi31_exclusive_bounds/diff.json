@@ -1,0 +1,46 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a different 'maximum' value than the previous one.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/0/schema/exclusiveMaximum",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/0/schema/maximum",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/0/schema/exclusiveMaximum",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/0/schema/maximum",
+    "Id": 1036,
+    "Code": "ConstraintChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a more constraining 'minimum' value than the previous one.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/0/schema/exclusiveMinimum",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/0/schema/exclusiveMinimum",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/0/schema/exclusiveMinimum",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/0/schema/exclusiveMinimum",
+    "Id": 1024,
+    "Code": "ConstraintIsStronger",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a different 'minimum' value than the previous one.",
+    "OldJsonRef": "#/paths/~1pets/get/parameters/1/schema/minimum",
+    "NewJsonRef": "#/paths/~1pets/get/parameters/1/schema/exclusiveMinimum",
+    "OldJsonPath": "#/paths/~1pets/get/parameters/1/schema/minimum",
+    "NewJsonPath": "#/paths/~1pets/get/parameters/1/schema/exclusiveMinimum",
+    "Id": 1036,
+    "Code": "ConstraintChanged",
+    "Mode": "Update"
+  }
+]

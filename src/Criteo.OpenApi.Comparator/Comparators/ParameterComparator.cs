@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Criteo.OpenApi.Comparator.Comparators.Extensions;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Criteo.OpenApi.Comparator.Comparators
 {
@@ -12,48 +12,47 @@ namespace Criteo.OpenApi.Comparator.Comparators
         private readonly SchemaComparator _schemaComparator;
         private readonly ContentComparator _contentComparator;
 
-        private readonly LinkedList<OpenApiParameter> _visitedParameters;
+        /// Referenced parameters already compared, with the direction they were compared in
+        private readonly HashSet<(IOpenApiParameter, DataDirection)> _visitedParameters;
 
         internal ParameterComparator(SchemaComparator schemaComparator, ContentComparator contentComparator)
         {
             _schemaComparator = schemaComparator;
             _contentComparator = contentComparator;
-            _visitedParameters = new LinkedList<OpenApiParameter>();
+            _visitedParameters = new HashSet<(IOpenApiParameter, DataDirection)>();
         }
 
         internal void Compare(
             ComparisonContext context,
-            OpenApiParameter oldParameter,
-            OpenApiParameter newParameter)
+            IOpenApiParameter oldParameter,
+            IOpenApiParameter newParameter)
         {
-            ComponentComparator<OpenApiParameter>.Compare(context, oldParameter, newParameter);
+            ComponentComparator<IOpenApiParameter>.Compare(context, oldParameter, newParameter);
 
             using (context.WithDirection(DataDirection.Request))
             {
-                var areParametersReferenced = false;
+                // Parameters defined in the components section are handled like referenced parameters
+                var areParametersReferenced = context.IsComponent(oldParameter) || context.IsComponent(newParameter);
 
-                if (!string.IsNullOrWhiteSpace(oldParameter.Reference?.ReferenceV3))
+                if (oldParameter.IsReference())
                 {
-                    oldParameter = FindReferencedParameter(oldParameter.Reference, context.OldOpenApiDocument.Components.Parameters);
+                    oldParameter = oldParameter.GetReference().Resolve(context.OldOpenApiDocument.Components?.Parameters);
                     areParametersReferenced = true;
                     if (oldParameter == null)
                         return;
                 }
-                if (!string.IsNullOrWhiteSpace(newParameter.Reference?.ReferenceV3))
+                if (newParameter.IsReference())
                 {
-                    newParameter = FindReferencedParameter(newParameter.Reference, context.NewOpenApiDocument.Components.Parameters);
+                    newParameter = newParameter.GetReference().Resolve(context.NewOpenApiDocument.Components?.Parameters);
                     areParametersReferenced = true;
                     if (newParameter == null)
                         return;
                 }
 
-                if (areParametersReferenced)
-                {
-                    if (_visitedParameters.Contains(oldParameter))
-                        return;
-
-                    _visitedParameters.AddFirst(oldParameter);
-                }
+                // A referenced parameter is compared once per direction: the same change may be breaking in one
+                // direction only (e.g. a parameter shared by a path and a webhook, where the direction is inverted).
+                if (areParametersReferenced && !_visitedParameters.Add((oldParameter, context.Direction)))
+                    return;
 
                 CompareIn(context, oldParameter.In, newParameter.In);
 
@@ -85,8 +84,8 @@ namespace Criteo.OpenApi.Comparator.Comparators
         }
 
         private static void CompareConstantStatus(ComparisonContext context,
-            OpenApiParameter oldParameter,
-            OpenApiParameter newParameter)
+            IOpenApiParameter oldParameter,
+            IOpenApiParameter newParameter)
         {
             if (newParameter.IsConstant() != oldParameter.IsConstant())
             {
@@ -97,28 +96,37 @@ namespace Criteo.OpenApi.Comparator.Comparators
         }
 
         private static void CompareRequiredStatus(ComparisonContext context,
-            OpenApiParameter oldParameter, OpenApiParameter newParameter)
+            IOpenApiParameter oldParameter, IOpenApiParameter newParameter)
         {
-            if (oldParameter.IsRequired() == newParameter.IsRequired() || context.Direction == DataDirection.Response)
+            if (oldParameter.IsRequired() == newParameter.IsRequired())
                 return;
 
+            // In the response direction (webhooks), the parameters are sent by the API: a parameter that is no longer
+            // required may be missing for the consumer, whereas a newly required parameter is always sent.
+            var isBreaking = context.Direction == DataDirection.Response
+                ? !newParameter.IsRequired()
+                : newParameter.IsRequired();
+            LogAction logger = isBreaking ? context.LogBreakingChange : context.LogInfo;
+
             context.PushProperty("required");
-            if (newParameter.IsRequired())
-            {
-                context.LogBreakingChange(ComparisonRules.RequiredStatusChange, false, true);
-            }
-            else
-            {
-                context.LogInfo(ComparisonRules.RequiredStatusChange, true, false);
-            }
+            logger(ComparisonRules.RequiredStatusChange, oldParameter.IsRequired(), newParameter.IsRequired());
             context.Pop();
         }
 
         private static void CompareStyle(ComparisonContext context,
-            OpenApiParameter oldParameter,
-            OpenApiParameter newParameter)
+            IOpenApiParameter oldParameter,
+            IOpenApiParameter newParameter)
         {
-            if (oldParameter.Style != newParameter.Style)
+            if (oldParameter.Style == newParameter.Style)
+                return;
+
+            // The reader sets a default style depending on the location (form for query and cookie, simple for path
+            // and header): when the location changes, the change between the two default styles is implied by it
+            // (and already reported), whereas an explicit style change is still reported.
+            var isImpliedByLocationChange = oldParameter.In != newParameter.In
+                && oldParameter.Style == DefaultStyle(oldParameter.In)
+                && newParameter.Style == DefaultStyle(newParameter.In);
+            if (!isImpliedByLocationChange)
             {
                 context.PushProperty("style");
                 context.LogBreakingChange(ComparisonRules.ParameterStyleChanged, oldParameter.Name);
@@ -126,8 +134,18 @@ namespace Criteo.OpenApi.Comparator.Comparators
             }
         }
 
+        private static ParameterStyle? DefaultStyle(ParameterLocation? location) =>
+            location switch
+            {
+                ParameterLocation.Query => ParameterStyle.Form,
+                ParameterLocation.Cookie => ParameterStyle.Form,
+                ParameterLocation.Path => ParameterStyle.Simple,
+                ParameterLocation.Header => ParameterStyle.Simple,
+                _ => null,
+            };
+
         private void CompareSchema(ComparisonContext context,
-            OpenApiSchema oldSchema, OpenApiSchema newSchema)
+            IOpenApiSchema oldSchema, IOpenApiSchema newSchema)
         {
             if (oldSchema == null || newSchema == null)
                 return;
@@ -135,24 +153,6 @@ namespace Criteo.OpenApi.Comparator.Comparators
             context.PushProperty("schema");
             _schemaComparator.Compare(context, oldSchema, newSchema);
             context.Pop();
-        }
-
-        private static OpenApiParameter FindReferencedParameter(
-            OpenApiReference reference, IDictionary<string, OpenApiParameter> parameters
-        )
-        {
-            if (parameters == null || reference == null || !reference.IsLocal)
-                return null;
-
-            var parts = reference.ReferenceV3.Split('/');
-            var isPathToParameter = parts.Length == 4 && parts[1].Equals("components") && parts[2].Equals("parameters");
-            if (!isPathToParameter)
-                return null;
-
-            if (parameters.TryGetValue(parts[3], out var parameter))
-                return parameter;
-
-            return null;
         }
     }
 }

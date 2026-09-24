@@ -1,0 +1,35 @@
+[
+  {
+    "Severity": "Info",
+    "Message": "The versions have not changed.",
+    "OldJsonRef": "#/info/version",
+    "NewJsonRef": "#/info/version",
+    "OldJsonPath": "#/info/version",
+    "NewJsonPath": "#/info/version",
+    "Id": 1001,
+    "Code": "NoVersionChange",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The new version has a different type 'string' than the previous one ''.",
+    "OldJsonRef": "#/paths/~1messages/get/responses/200/content/application~1json/schema/properties/payload/type",
+    "NewJsonRef": "#/paths/~1messages/get/responses/200/content/application~1json/schema/properties/payload/type",
+    "OldJsonPath": "#/components/schemas/Message/properties/payload/type",
+    "NewJsonPath": "#/components/schemas/Message/properties/payload/type",
+    "Id": 1026,
+    "Code": "TypeChanged",
+    "Mode": "Update"
+  },
+  {
+    "Severity": "Error",
+    "Message": "The nullable property has changed from 'true' to 'false'.",
+    "OldJsonRef": "#/paths/~1messages/get/responses/200/content/application~1json/schema/properties/payload/nullable",
+    "NewJsonRef": "#/paths/~1messages/get/responses/200/content/application~1json/schema/properties/payload/type",
+    "OldJsonPath": "#/components/schemas/Message/properties/payload/nullable",
+    "NewJsonPath": "#/components/schemas/Message/properties/payload/type",
+    "Id": 2000,
+    "Code": "NullablePropertyChanged",
+    "Mode": "Update"
+  }
+]

@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Criteo.OpenApi.Comparator.Parser;
 using Criteo.OpenApi.Comparator.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Criteo.OpenApi.Comparator
 {
@@ -39,19 +40,60 @@ namespace Criteo.OpenApi.Comparator
         /// Old swagger
         internal OpenApiDocument NewOpenApiDocument => _newOpenApiDocument.Typed;
 
+        internal OpenApiSpecVersion OldSpecVersion => _oldOpenApiDocument.SpecVersion;
+
+        internal OpenApiSpecVersion NewSpecVersion => _newOpenApiDocument.SpecVersion;
+
         /// If true, then breaking changes are errors instead of warnings.
         internal bool Strict { get; set; }
+
+        /// Errors found in the old document during the comparison (e.g. invalid x-ms-paths).
+        internal IList<OpenApiError> OldDocumentErrors { get; } = new List<OpenApiError>();
+
+        /// Errors found in the new document during the comparison (e.g. invalid x-ms-paths).
+        internal IList<OpenApiError> NewDocumentErrors { get; } = new List<OpenApiError>();
+
+        private HashSet<object> _components;
+
+        /// <summary>
+        /// Indicate if the element is a schema or a parameter defined in the components section of one of the documents.
+        /// </summary>
+        internal bool IsComponent(object element)
+        {
+            if (element == null)
+                return false;
+
+            _components ??= new HashSet<object>(
+                GetComponents(OldOpenApiDocument).Concat(GetComponents(NewOpenApiDocument)));
+
+            return _components.Contains(element);
+        }
+
+        private static IEnumerable<object> GetComponents(OpenApiDocument document) =>
+            (document.Components?.Schemas?.Values ?? Enumerable.Empty<IOpenApiSchema>()).Cast<object>()
+                .Concat(document.Components?.Parameters?.Values ?? Enumerable.Empty<IOpenApiParameter>());
 
         /// Request, Response, Both or None
         private readonly DisposableDataDirection _direction = new();
 
         internal DataDirection Direction { get => _direction.Direction; set => _direction.Direction = value; }
 
+        /// If true, request and response directions are inverted (e.g. for webhooks, where the API sends the requests).
+        internal bool InvertDirections { get; set; }
+
         internal IDisposable WithDirection(DataDirection direction)
         {
-            _direction.Direction = direction;
+            _direction.Direction = InvertDirections ? Invert(direction) : direction;
             return _direction;
         }
+
+        private static DataDirection Invert(DataDirection direction) =>
+            direction switch
+            {
+                DataDirection.Request => DataDirection.Response,
+                DataDirection.Response => DataDirection.Request,
+                _ => direction,
+            };
 
         private ObjectPath Path => _path.Peek();
 
@@ -60,6 +102,26 @@ namespace Criteo.OpenApi.Comparator
         internal void PushParameterByName(string name) => _path.Push(Path.AppendParameterByName(name));
 
         internal void PushServerByUrl(string url) => _path.Push(Path.AppendServerByUrl(url));
+
+        /// <summary>
+        /// Goes into the wrapped schemas (see OpenApiSchemaExtensions.IsWrapper): a null keyword means that the schema
+        /// is not wrapped in that document.
+        /// </summary>
+        internal void PushWrappedSchema(string oldKeyword, int oldIndex, string newKeyword, int newIndex)
+        {
+            var oldRoot = _oldOpenApiDocument.Token.Root;
+            _path.Push(Path
+                .AppendPerDocument(oldRoot, oldKeyword, newKeyword)
+                .AppendPerDocument(oldRoot, oldKeyword == null ? null : oldIndex.ToString(), newKeyword == null ? null : newIndex.ToString()));
+        }
+
+        internal void PushItemByReference(string reference) => _path.Push(Path.AppendItemByReference(reference));
+
+        /// <summary>
+        /// Pushes a property whose name depends on the document (e.g. "nullable" in OpenAPI 3.0, "type" in OpenAPI 3.1).
+        /// </summary>
+        internal void PushPropertyPerDocument(string oldProperty, string newProperty) =>
+            _path.Push(Path.AppendPerDocument(_oldOpenApiDocument.Token.Root, oldProperty, newProperty));
 
         internal void PushPathProperty(string name, bool asProperty = false) => _path.Push(asProperty
             ? Path.AppendProperty(name)
